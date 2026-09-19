@@ -368,6 +368,22 @@ if (bestMatch && bestScore >= 60 && bestMatch !== lowerSubject) {
 } else {
     suggestionElement.textContent = "";
 }
+	const existingPages = [
+    "comingup"
+];
+	const matchExists = existingPages.includes(bestMatch);
+
+if (bestScore >= 60) {
+    if (matchExists) {
+        suggestionElement.innerHTML =
+            `Did you mean "<strong>${bestMatch}</strong>"? ` +
+            `That exists — <a href="/${bestMatch}">click here!</a>`;
+    } else {
+        suggestionElement.textContent =
+            `Did you mean "${bestMatch}"${emojis[bestMatch] || ""}? ` +
+            `Anyways, that doesn't exist either.`;
+    }
+}
 </script>
 </body>
 </html>
