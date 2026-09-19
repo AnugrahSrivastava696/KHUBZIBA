@@ -200,6 +200,7 @@
         May I plead to ask, but what is
         "<span id="url"></span>"?
     </p>
+		<p id="suggestion"></p>
 
     <p>
         <strong>
@@ -306,6 +307,67 @@
     }
 
     document.getElementById("emoji").textContent = emoji;
+	function levenshtein(a, b) {
+    const matrix = [];
+
+    for (let i = 0; i <= b.length; i++) {
+        matrix[i] = [i];
+    }
+
+    for (let j = 0; j <= a.length; j++) {
+        matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            if (b[i - 1].toLowerCase() === a[j - 1].toLowerCase()) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j] + 1,
+                    matrix[i][j - 1] + 1,
+                    matrix[i - 1][j - 1] + 1
+                );
+            }
+        }
+    }
+
+    return matrix[b.length][a.length];
+}
+
+function similarity(a, b) {
+    const distance = levenshtein(a, b);
+    const maxLength = Math.max(a.length, b.length);
+
+    if (maxLength === 0) return 100;
+
+    return (1 - distance / maxLength) * 100;
+}
+	let bestMatch = null;
+let bestScore = 0;
+
+const lowerSubject = subject.toLowerCase();
+
+for (const word in emojis) {
+    const score = similarity(lowerSubject, word);
+
+    if (score > bestScore) {
+        bestScore = score;
+        bestMatch = word;
+    }
+}
+
+const suggestionElement = document.getElementById("suggestion");
+
+if (bestMatch && bestScore >= 60 && bestMatch !== lowerSubject) {
+    const emoji = emojis[bestMatch];
+
+    suggestionElement.innerHTML =
+        `Did you mean "<strong>${bestMatch}</strong>"${emoji}? ` +
+        `Anyways, that doesn't exist either.`;
+} else {
+    suggestionElement.textContent = "";
+}
 </script>
 </body>
 </html>
