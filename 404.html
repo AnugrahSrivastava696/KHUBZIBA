@@ -284,15 +284,9 @@
         water: "💧",
         flower: "🌸",
         heart: "❤️",
-		comingup
     };
 
     // Try the exact word first
-const existingPages = [
-    "comingup"
-];
-
-
 function levenshtein(a, b) {
     const matrix = [];
 
@@ -362,12 +356,6 @@ if (
 ) {
 
     const matchExists = existingPages.includes(bestMatch);
-
-    if (matchExists) {
-
-        suggestionElement.innerHTML =
-            `Did you mean "<strong>${bestMatch}</strong>"? ` +
-            `That exists — <a href="/${bestMatch}">click here!</a>`;
 
     } else {
 
