@@ -194,17 +194,117 @@
     <div class="error">
         <h1>404</h1>
 
-        <h2>Uh-oh...</h2>
+<p id="not-found-text"></p>
 
-        <p>
-            The page you're looking for doesn't exist!
-        </p>
-		<p>ERROR_404_OOPSIE</p>
+    <p>
+        May I plead to ask, but what is
+        "<span id="thing"></span>"?
+    </p>
+
+    <p>
+        <strong>
+            We've searched the whole universe.
+            Perhaps you typed it incorrectly.
+            Perhaps the page vanished.
+            But there is no <span id="subject"></span>
+            <span id="emoji"></span>.
+        </strong>
+    </p>
+
+    <p id="error-code"></p>
 
         <a class="home" href="/">
             Find cooler things on the way back home!
         </a>
     </div>
+<script>
+    // Get the path WITHOUT the domain
+    const path = decodeURIComponent(window.location.pathname);
 
+    // Remove leading/trailing slashes
+    const cleanPath = path.replace(/^\/+|\/+$/g, "");
+
+    // Split /Ieat/banana into ["Ieat", "banana"]
+    const parts = cleanPath.split("/").filter(Boolean);
+
+    // Make it readable:
+    // ["Ieat", "banana"] → "Ieat - banana"
+    const displayName = parts.join(" - ");
+
+    // The final part is the main thing we're confused about
+    const subject = parts.length
+        ? parts[parts.length - 1]
+        : "this";
+
+    // Display values
+    document.getElementById("thing").textContent = displayName || "this";
+    document.getElementById("subject").textContent = subject;
+
+    document.getElementById("not-found-text").textContent =
+        `The page you're looking for—erm—"${displayName || "this"}" doesn't exist!`;
+
+    document.getElementById("error-code").textContent =
+        `ERROR_404_${subject.toUpperCase().replace(/[^A-Z0-9]+/g, "-")}-NOT-FOUND`;
+
+    // Emoji dictionary
+    const emojis = {
+        banana: "🍌",
+        apple: "🍎",
+        orange: "🍊",
+        pizza: "🍕",
+        cat: "🐱",
+        dog: "🐶",
+        bird: "🐦",
+        fish: "🐟",
+        chess: "♟️",
+        queen: "♛",
+        king: "♔",
+        music: "🎵",
+        song: "🎵",
+        video: "🎬",
+        camera: "📷",
+        computer: "💻",
+        code: "💻",
+        book: "📖",
+        books: "📚",
+        moon: "🌙",
+        sun: "☀️",
+        star: "⭐",
+        space: "🚀",
+        rocket: "🚀",
+        earth: "🌍",
+        india: "🇮🇳",
+        home: "🏠",
+        money: "💰",
+        game: "🎮",
+        games: "🎮",
+        fire: "🔥",
+        water: "💧",
+        flower: "🌸",
+        heart: "❤️"
+    };
+
+    // Try the exact word first
+    let emoji = emojis[subject.toLowerCase()];
+
+    // If no exact match, try to find a word contained inside it
+    if (!emoji) {
+        const lowerSubject = subject.toLowerCase();
+
+        for (const word in emojis) {
+            if (lowerSubject.includes(word)) {
+                emoji = emojis[word];
+                break;
+            }
+        }
+    }
+
+    // Ultimate fallback
+    if (!emoji) {
+        emoji = "❓";
+    }
+
+    document.getElementById("emoji").textContent = emoji;
+</script>
 </body>
 </html>
