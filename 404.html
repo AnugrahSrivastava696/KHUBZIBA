@@ -249,7 +249,7 @@
         `ERROR_404_${subject.toUpperCase().replace(/[^A-Z0-9]+/g, "-")}-NOT-FOUND`;
 
     // Emoji dictionary
-    const knownWords = {
+    const emojis = {
         banana: "🍌",
         apple: "🍎",
         orange: "🍊",
@@ -285,7 +285,7 @@
         flower: "🌸",
         heart: "❤️",
     };
-
+const knownWords = Object.keys(emojis);
     // Try the exact word first
     function levenshtein(a, b) {
         const matrix = [];
@@ -357,6 +357,25 @@
     } else {
         suggestionElement.textContent = "";
     }
+	// Get emoji for the actual subject
+let emoji = emojis[subject.toLowerCase()];
+
+if (!emoji) {
+    const lowerSubject = subject.toLowerCase();
+
+    for (const word of knownWords) {
+        if (lowerSubject.includes(word)) {
+            emoji = emojis[word];
+            break;
+        }
+    }
+}
+
+if (!emoji) {
+    emoji = "";
+}
+
+document.getElementById("emoji").textContent = emoji;
 </script>
 </body>
 </html>
