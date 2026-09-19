@@ -283,31 +283,17 @@
         fire: "🔥",
         water: "💧",
         flower: "🌸",
-        heart: "❤️"
+        heart: "❤️",
+		comingup
     };
 
     // Try the exact word first
-    let emoji = emojis[subject.toLowerCase()];
+const existingPages = [
+    "comingup"
+];
 
-    // If no exact match, try to find a word contained inside it
-    if (!emoji) {
-        const lowerSubject = subject.toLowerCase();
 
-        for (const word in emojis) {
-            if (lowerSubject.includes(word)) {
-                emoji = emojis[word];
-                break;
-            }
-        }
-    }
-
-    // Ultimate fallback
-    if (!emoji) {
-        emoji = "";
-    }
-
-    document.getElementById("emoji").textContent = emoji;
-	function levenshtein(a, b) {
+function levenshtein(a, b) {
     const matrix = [];
 
     for (let i = 0; i <= b.length; i++) {
@@ -320,6 +306,7 @@
 
     for (let i = 1; i <= b.length; i++) {
         for (let j = 1; j <= a.length; j++) {
+
             if (b[i - 1].toLowerCase() === a[j - 1].toLowerCase()) {
                 matrix[i][j] = matrix[i - 1][j - 1];
             } else {
@@ -335,6 +322,7 @@
     return matrix[b.length][a.length];
 }
 
+
 function similarity(a, b) {
     const distance = levenshtein(a, b);
     const maxLength = Math.max(a.length, b.length);
@@ -343,12 +331,16 @@ function similarity(a, b) {
 
     return (1 - distance / maxLength) * 100;
 }
-	let bestMatch = null;
+
+
+// Find the closest known word
+let bestMatch = null;
 let bestScore = 0;
 
 const lowerSubject = subject.toLowerCase();
 
-for (const word in emojis) {
+for (const word of knownWords) {
+
     const score = similarity(lowerSubject, word);
 
     if (score > bestScore) {
@@ -357,32 +349,36 @@ for (const word in emojis) {
     }
 }
 
+
 const suggestionElement = document.getElementById("suggestion");
 
-if (bestMatch && bestScore >= 60 && bestMatch !== lowerSubject) {
-    const emoji = emojis[bestMatch];
 
-    suggestionElement.innerHTML =
-        `Did you mean "<strong>${bestMatch}</strong>"${emoji}? ` +
-        `Anyways, that doesn't exist either.`;
-} else {
-    suggestionElement.textContent = "";
-}
-	const existingPages = [
-    "comingup"
-];
-	const matchExists = existingPages.includes(bestMatch);
+// Only suggest something if it's at least 60% similar
+// AND isn't exactly what the user typed.
+if (
+    bestMatch &&
+    bestScore >= 60 &&
+    bestMatch !== lowerSubject
+) {
 
-if (bestScore >= 60) {
+    const matchExists = existingPages.includes(bestMatch);
+
     if (matchExists) {
+
         suggestionElement.innerHTML =
             `Did you mean "<strong>${bestMatch}</strong>"? ` +
             `That exists — <a href="/${bestMatch}">click here!</a>`;
+
     } else {
+
         suggestionElement.textContent =
             `Did you mean "${bestMatch}"${emojis[bestMatch] || ""}? ` +
             `Anyways, that doesn't exist either.`;
     }
+
+} else {
+
+    suggestionElement.textContent = "";
 }
 </script>
 </body>
