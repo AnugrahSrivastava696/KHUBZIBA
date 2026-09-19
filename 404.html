@@ -249,7 +249,7 @@
         `ERROR_404_${subject.toUpperCase().replace(/[^A-Z0-9]+/g, "-")}-NOT-FOUND`;
 
     // Emoji dictionary
-    const emojis = {
+    const knownWords = {
         banana: "🍌",
         apple: "🍎",
         orange: "🍊",
@@ -287,87 +287,76 @@
     };
 
     // Try the exact word first
-function levenshtein(a, b) {
-    const matrix = [];
+    function levenshtein(a, b) {
+        const matrix = [];
 
-    for (let i = 0; i <= b.length; i++) {
-        matrix[i] = [i];
-    }
+        for (let i = 0; i <= b.length; i++) {
+            matrix[i] = [i];
+        }
 
-    for (let j = 0; j <= a.length; j++) {
-        matrix[0][j] = j;
-    }
+        for (let j = 0; j <= a.length; j++) {
+            matrix[0][j] = j;
+        }
 
-    for (let i = 1; i <= b.length; i++) {
-        for (let j = 1; j <= a.length; j++) {
-
-            if (b[i - 1].toLowerCase() === a[j - 1].toLowerCase()) {
-                matrix[i][j] = matrix[i - 1][j - 1];
-            } else {
-                matrix[i][j] = Math.min(
-                    matrix[i - 1][j] + 1,
-                    matrix[i][j - 1] + 1,
-                    matrix[i - 1][j - 1] + 1
-                );
+        for (let i = 1; i <= b.length; i++) {
+            for (let j = 1; j <= a.length; j++) {
+                if (
+                    b[i - 1].toLowerCase() ===
+                    a[j - 1].toLowerCase()
+                ) {
+                    matrix[i][j] = matrix[i - 1][j - 1];
+                } else {
+                    matrix[i][j] = Math.min(
+                        matrix[i - 1][j] + 1,
+                        matrix[i][j - 1] + 1,
+                        matrix[i - 1][j - 1] + 1
+                    );
+                }
             }
+        }
+
+        return matrix[b.length][a.length];
+    }
+
+    function similarity(a, b) {
+        const distance = levenshtein(a, b);
+        const maxLength = Math.max(a.length, b.length);
+
+        if (maxLength === 0) return 100;
+
+        return (1 - distance / maxLength) * 100;
+    }
+
+    // Find the closest known word
+    let bestMatch = null;
+    let bestScore = 0;
+
+    const lowerSubject = subject.toLowerCase();
+
+    for (const word of knownWords) {
+        const score = similarity(lowerSubject, word);
+
+        if (score > bestScore) {
+            bestScore = score;
+            bestMatch = word;
         }
     }
 
-    return matrix[b.length][a.length];
-}
+    // Show suggestion only if similarity is 60%+
+    const suggestionElement =
+        document.getElementById("suggestion");
 
-
-function similarity(a, b) {
-    const distance = levenshtein(a, b);
-    const maxLength = Math.max(a.length, b.length);
-
-    if (maxLength === 0) return 100;
-
-    return (1 - distance / maxLength) * 100;
-}
-
-
-// Find the closest known word
-let bestMatch = null;
-let bestScore = 0;
-
-const lowerSubject = subject.toLowerCase();
-
-for (const word of knownWords) {
-
-    const score = similarity(lowerSubject, word);
-
-    if (score > bestScore) {
-        bestScore = score;
-        bestMatch = word;
-    }
-}
-
-
-const suggestionElement = document.getElementById("suggestion");
-
-
-// Only suggest something if it's at least 60% similar
-// AND isn't exactly what the user typed.
-if (
-    bestMatch &&
-    bestScore >= 60 &&
-    bestMatch !== lowerSubject
-) {
-
-    const matchExists = existingPages.includes(bestMatch);
-
-    } else {
-
+    if (
+        bestMatch &&
+        bestScore >= 60 &&
+        bestMatch !== lowerSubject
+    ) {
         suggestionElement.textContent =
             `Did you mean "${bestMatch}"${emojis[bestMatch] || ""}? ` +
             `Anyways, that doesn't exist either.`;
+    } else {
+        suggestionElement.textContent = "";
     }
-
-} else {
-
-    suggestionElement.textContent = "";
-}
 </script>
 </body>
 </html>
